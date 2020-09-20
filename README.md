@@ -16,7 +16,7 @@ make
 ```
 
 ## Usage
-Please see `testBary.cpp` to see how to use the library.
+Please see `testBary.cpp` 
 
 ## Contributing
 Feel free to add more geometric operations related to
