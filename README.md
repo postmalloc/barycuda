@@ -25,5 +25,5 @@ graphics rendering and raytracing.
 
 ## References
 Shirley, P. (2009) Fundamentals of Computer Graphics  
-https://en.wikipedia.org/wiki/Barycentric_coordinate_system
-https://math.stackexchange.com/questions/1226707/how-to-check-if-point-x-in-mathbbrn-is-in-a-n-simplex
+https://en.wikipedia.org/wiki/Barycentric_coordinate_system  
+https://math.stackexchange.com/questions/1226707/how-to-check-if-point-x-in-mathbbrn-is-in-a-n-simplex  
