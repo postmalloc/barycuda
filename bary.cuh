@@ -4,7 +4,7 @@
 #include "geometry.cuh"
 
 namespace bary{
-    bool* point_in_triangle(vec3f *pts, int n, vec3f t0, vec3f t1, vec3f t2);
+    bool* point_in_simplex(vec3f *pts, int n, int dim, vec3f *verts);
 }
 
 #endif //BARY_H_
