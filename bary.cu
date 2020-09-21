@@ -37,84 +37,80 @@ namespace bary{
     return v1->x*v2->x + v1->y*v2->y + v1->z*v2->z;
   }
 
-  __global__ void point_in_triangle_kernel(vec3f *pts_d, 
-                                           vec3f *t0_d, 
-                                           vec3f *t1_d, 
-                                           vec3f *t2_d, 
-                                           bool *res_d){
+  __global__ void pt_in_tri(vec3f *pts, vec3f *a, vec3f *b, vec3f *c, bool *res){
 
     int i = blockIdx.x * blockDim.x + threadIdx.x;
 
-    vec3f *p = &pts_d[i];
-    vec3f t0p[3], t1p[3], t2p[3];
-    vec3f t0t2[3], t0t1[3], t2t0[3], t1t2[3];
+    vec3f *p = &pts[i];
+    vec3f ap[3], bp[3], cp[3];
+    vec3f ac[3], ab[3], ca[3], bc[3];
     vec3f n[3], n0[3], n1[3], n2[3];
 
     float bary[3];
 
-    _diff(t0p, t0_d, p);
-    _diff(t1p, t1_d, p);
-    _diff(t2p, t2_d, p);
+    // Vectors from vertices to the point
+    _diff(ap, a, p);
+    _diff(bp, b, p);
+    _diff(cp, c, p);
 
-    _diff(t0t2, t0_d, t2_d);
-    _diff(t0t1, t0_d, t1_d);
-    _diff(t2t0, t2_d, t0_d);
-    _diff(t1t2, t1_d, t2_d);
+    // Vectors for triangle edges
+    _diff(ac, a, c);
+    _diff(ab, a, b);
+    _diff(ca, c, a);
+    _diff(bc, b, c);
 
-    _cross(n, t0t1, t0t2);
-    _cross(n0, t1t2, t1p);
-    _cross(n1, t2t0, t2p);
-    _cross(n2, t0t1, t0p);
+    // Make normals. The lengths are proportional to the
+    // area of the subtriangles
+    _cross(n, ab, ac);
+    _cross(n0, bc, bp);
+    _cross(n1, ca, cp);
+    _cross(n2, ab, ap);
 
     float n_norm = _dot(n, n);
 
+    // Find relative areas
     bary[0] = _dot(n, n0) / n_norm;
     bary[1] = _dot(n, n1) / n_norm;
     bary[2] = _dot(n, n2) / n_norm;
 
-    res_d[i] = !(bary[0]<0 || bary[1]<0 || bary[2]<0);
+    res[i] = !(bary[0]<0 || bary[1]<0 || bary[2]<0);
   }
-
 
 
   /**
     Checks if a bunch of points lie inside a triangle
     @param pts An array of points
     @param n number of points
-    @param t0 vertex of triangle
-    @param t1 vertex of triangle
-    @param t2 vertex of triangle
+    @param a vertex of triangle
+    @param b vertex of triangle
+    @param c vertex of triangle
     @return res a boolean array
   */
-  __host__ bool* point_in_triangle(vec3f *pts, 
-                                   int n, 
-                                   vec3f t0, 
-                                   vec3f t1, 
-                                   vec3f t2) {
+  __host__ bool* point_in_triangle(vec3f *pts, int n, vec3f a, vec3f b, vec3f c) {
     vec3f *pts_d;
-    vec3f *t0_d, *t1_d, *t2_d;
+    vec3f *a_d, *b_d, *c_d;
     bool *res_d;
     bool *res = new bool[n];
 
     cudaErrchk(cudaMalloc(&pts_d, n * sizeof(vec3f)));
-    cudaErrchk(cudaMalloc(&t0_d, sizeof(vec3f)));
-    cudaErrchk(cudaMalloc(&t1_d, sizeof(vec3f)));
-    cudaErrchk(cudaMalloc(&t2_d, sizeof(vec3f)));
+    cudaErrchk(cudaMalloc(&a_d, sizeof(vec3f)));
+    cudaErrchk(cudaMalloc(&b_d, sizeof(vec3f)));
+    cudaErrchk(cudaMalloc(&c_d, sizeof(vec3f)));
     cudaErrchk(cudaMalloc(&res_d, n * sizeof(bool)));
 
     cudaErrchk(cudaMemcpy(pts_d, pts, n * sizeof(vec3f), cudaMemcpyHostToDevice));
-    cudaErrchk(cudaMemcpy(t0_d, &t0, sizeof(vec3f), cudaMemcpyHostToDevice));
-    cudaErrchk(cudaMemcpy(t1_d, &t1, sizeof(vec3f), cudaMemcpyHostToDevice));
-    cudaErrchk(cudaMemcpy(t2_d, &t2, sizeof(vec3f), cudaMemcpyHostToDevice));
+    cudaErrchk(cudaMemcpy(a_d, &a, sizeof(vec3f), cudaMemcpyHostToDevice));
+    cudaErrchk(cudaMemcpy(b_d, &b, sizeof(vec3f), cudaMemcpyHostToDevice));
+    cudaErrchk(cudaMemcpy(c_d, &c, sizeof(vec3f), cudaMemcpyHostToDevice));
 
-    point_in_triangle_kernel<<<1+(n/N_THREADS_PER_BLOCK), N_THREADS_PER_BLOCK>>>(pts_d, t0_d, t1_d, t2_d, res_d);
+    pt_in_tri<<<1+(n/N_THREADS_PER_BLOCK), N_THREADS_PER_BLOCK>>>(pts_d, a_d, b_d, c_d, res_d);
 
     cudaErrchk(cudaMemcpy(res, res_d, n * sizeof(bool), cudaMemcpyDeviceToHost));
 
     cudaFree(pts_d);
-    cudaFree(t0_d);
-    cudaFree(t1_d);
-    cudaFree(t2_d);
+    cudaFree(a_d);
+    cudaFree(b_d);
+    cudaFree(c_d);
     cudaFree(res_d);
     return res;
   }
