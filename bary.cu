@@ -22,30 +22,70 @@ inline void gpuSay(cudaError_t scode, const char *file, int line, bool abort=tru
 
 
 namespace bary{
+
+  __device__ void _diff(vec3f *res, vec3f *v1, vec3f *v2){
+    *res = (vec3f){v2->x-v1->x, v2->y-v1->y, v2->z-v2->z};
+  }
+
+  __device__ void _cross(vec3f *res, vec3f *v1, vec3f *v2){
+    res->x = v1->y*v2->z - v1->z*v2->y;
+    res->y = v1->z*v2->x - v1->x*v2->z;
+    res->z = v1->x*v2->y - v1->y*v2->x;
+  }
+
+  __device__ float _dot(vec3f *v1, vec3f *v2){
+    return v1->x*v2->x + v1->y*v2->y + v1->z*v2->z;
+  }
+
   __global__ void point_in_triangle_kernel(vec3f *pts_d, 
                                            vec3f *t0_d, 
                                            vec3f *t1_d, 
                                            vec3f *t2_d, 
                                            bool *res_d){
+
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-    vec3f v0 = {t1_d->x - t0_d->x, t1_d->y - t0_d->y, t1_d->z - t0_d->z};
-    vec3f v1 = {t2_d->x - t0_d->x, t2_d->y - t0_d->y, t2_d->z - t0_d->z};
-    vec3f v2 = {pts_d[i].x - t0_d->x, pts_d[i].y - t0_d->y, pts_d[i].z - t0_d->z};
-    float deno = v0.x * v1.y - v1.x * v0.y;
-    float v = (v2.x * v1.y - v1.x * v2.y) / deno;
-    float w = (v0.x * v2.y - v2.x * v0.y) / deno;
-    float u = 1 - (v + w);
-    bool r = !(u < 0 || v < 0 || w < 0);
-    res_d[i] = r;
+
+    vec3f *p = &pts_d[i];
+    vec3f t0p[3], t1p[3], t2p[3];
+    vec3f t0t2[3], t0t1[3], t2t0[3], t1t2[3];
+    vec3f n[3], n0[3], n1[3], n2[3];
+
+    float bary[3];
+
+    _diff(t0p, t0_d, p);
+    _diff(t1p, t1_d, p);
+    _diff(t2p, t2_d, p);
+
+    _diff(t0t2, t0_d, t2_d);
+    _diff(t0t1, t0_d, t1_d);
+    _diff(t2t0, t2_d, t0_d);
+    _diff(t1t2, t1_d, t2_d);
+
+    _cross(n, t0t1, t0t2);
+    _cross(n0, t1t2, t1p);
+    _cross(n1, t2t0, t2p);
+    _cross(n2, t0t1, t0p);
+
+    float n_norm = _dot(n, n);
+
+    bary[0] = _dot(n, n0) / n_norm;
+    bary[1] = _dot(n, n1) / n_norm;
+    bary[2] = _dot(n, n2) / n_norm;
+
+    res_d[i] = !(bary[0]<0 || bary[1]<0 || bary[2]<0);
   }
 
-  // Checks if a bunch of points lie inside a triangle
-  // @param pts An array of points
-  // @param n number of points
-  // @param t0 vertex of triangle
-  // @param t1 vertex of triangle
-  // @param t2 vertex of triangle
-  // @return res a boolean array
+
+
+  /**
+    Checks if a bunch of points lie inside a triangle
+    @param pts An array of points
+    @param n number of points
+    @param t0 vertex of triangle
+    @param t1 vertex of triangle
+    @param t2 vertex of triangle
+    @return res a boolean array
+  */
   __host__ bool* point_in_triangle(vec3f *pts, 
                                    int n, 
                                    vec3f t0, 
