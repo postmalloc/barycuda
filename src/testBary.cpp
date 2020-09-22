@@ -1,9 +1,10 @@
 #include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "bary.cuh"
 
-#define N 1000
+#define N 30
 
 int main(){
   srand(time(NULL));
@@ -27,15 +28,21 @@ int main(){
   vec3f t2 = {rand()%255, rand()%255, rand()%255};
   vec3f t3 = {rand()%255, rand()%255, rand()%255};
 
-  vec3f *verts = new vec3f[4];
+  vec3f *verts = new vec3f[3];
   verts[0] = t0;
   verts[1] = t1;
   verts[2] = t2;
-  verts[3] = t3;
+  // verts[3] = t3;
 
-  bool* res = bary::point_in_simplex(pts_h, N, 4, verts);
+  // bool* res = bary::point_in_simplex(pts_h, N, 3, verts);
 
-  for(int i=N; i--; std::cout << res[i]){}
+  float** res = bary::bary_triangle(pts_h, N, 3, verts);
+
+  for(int i=N; i--; std::cout << res[i][0] << res[i][1] << res[i][2] <<  std::endl){}
+  // std::cout << res[0][0];
+  // for(int i=0; i<N; i++){
+  //  printf("%f\n", res[i]);
+  // }
 
   return 0;
 }
