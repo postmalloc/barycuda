@@ -1,6 +1,5 @@
 # barycuda
-<img src="./docs/barycuda.png" alt="artwork" width="200"/>
-<br>
+<img src="./docs/barycuda.png" alt="artwork" width="250"/>
 
 A tiny CUDA library for fast barycentric operations.
 
