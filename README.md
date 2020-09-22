@@ -1,4 +1,7 @@
 # barycuda
+<img src="./docs/barycuda.png" alt="artwork" width="200"/>
+<br>
+
 A tiny CUDA library for fast barycentric operations.
 
 Barycuda is a tiny CUDA accelerated library with no dependencies that
@@ -17,7 +20,7 @@ make
 ```
 
 ## Usage
-Please see `testBary.cpp` 
+Please see `src/testBary.cpp` 
 
 ## Contributing
 Feel free to add more geometric operations related to
