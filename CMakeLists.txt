@@ -3,7 +3,7 @@ project(barycuda)
 
 find_package(CUDA REQUIRED)
 
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_30)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_30;-std=c++11)
 include_directories(./include)
 
 cuda_add_library(barycuda SHARED src/bary.cu)
