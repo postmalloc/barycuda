@@ -1,13 +1,17 @@
 # barycuda
 <img src="./docs/barycuda.png" alt="artwork" width="250"/>
 
-A tiny CUDA library for fast barycentric operations.
-
 Barycuda is a tiny CUDA accelerated library with no dependencies that
 performs various barycentric operations. This is an attempt to speed-up
 a 3D renderer that I'm working on.
 
-Currently, the library provides functions to check if a set of points are inside a 2D/3D simplex. 
+Currently, the library exposes the following functions:  
+* `point_in_simplex` - takes an array of points, the vertices
+of a 2D/3D simplex, and tells you if each point lies inside the
+simplex.  
+* `bary_simplex` - takes an array of points, the vertices of
+a 2D/3D simplex, and returns the barycentric coordinates for
+each point.
 
 ## Build
 ```bash

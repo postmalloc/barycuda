@@ -21,7 +21,6 @@ int main(){
     {0,    0, 100}
   };
 
-
   // =============== Point inside the tetrahedron ==============
   pts_in[0] = (vec3f){20,10,5};
   bool* pts_in_res = bary::point_in_simplex(pts_in, N, 4, verts);
@@ -36,13 +35,12 @@ int main(){
   assert(abs(bary_in[0][2] - 0.10) < 0.001);
   assert(abs(bary_in[0][3] - 0.05) < 0.001);
 
-
   // ============== Point outside the tetrahedron ==============
   pts_out[0] = (vec3f){120,50,90};
   bool* pts_out_res = bary::point_in_simplex(pts_out, N, 4, verts);
   float** bary_out = bary::bary_simplex(pts_out, N, 4, verts);
 
-  // The point should be inside the tetrahedron
+  // The point should be outside the tetrahedron
   assert(pts_out_res[0] == false);
 
   // Test for the barycentric coordinates
