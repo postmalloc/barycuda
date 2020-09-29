@@ -126,9 +126,10 @@ __global__ void bary_tri(vec3f *pts, int n, vec3f *a, vec3f *b, vec3f *c,
     vec3f *p = &pts[tidy];
     float bary[3];
     _bary_tri(p, n, a, b, c, bary);
-    res[tidy * pitch] = bary[0];
-    res[tidy * pitch + 1] = bary[1];
-    res[tidy * pitch + 2] = bary[2];
+    float *row = (float *)((char *)res + tidy*pitch);
+    row[0] = bary[0];
+    row[1] = bary[1];
+    row[2] = bary[2];
   }
 }
 
@@ -141,10 +142,11 @@ __global__ void bary_tet(vec3f *pts, int n, vec3f *a, vec3f *b, vec3f *c,
     vec3f *p = &pts[tidy];
     float bary[4];
     _bary_tet(p, n, a, b, c, d, bary);
-    res[tidy * pitch] = bary[0];
-    res[tidy * pitch + 1] = bary[1];
-    res[tidy * pitch + 2] = bary[2];
-    res[tidy * pitch + 3] = bary[3];
+    float *row = (float *)((char *)res + tidy*pitch);
+    row[0] = bary[0];
+    row[1] = bary[1];
+    row[2] = bary[2];
+    row[3] = bary[3];
   }
 }
 
@@ -210,7 +212,7 @@ __host__ float **bary_simplex(vec3f *pts, int n, int ndim, vec3f *verts) {
 
   gpuErrChk(cudaMemcpy2D(res, ndim * sizeof(float), res_d, pitch,
                          ndim * sizeof(float), n, cudaMemcpyDeviceToHost));
-
+  
   cudaFree(pts_d);
   cudaFree(a_d);
   cudaFree(b_d);
