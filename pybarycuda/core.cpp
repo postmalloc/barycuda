@@ -62,7 +62,7 @@ static PyMethodDef barycuda_core_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static struct PyModuleDef module_def = {
-    PyModuleDef_HEAD_INIT, "barycuda.core",
+    PyModuleDef_HEAD_INIT, "pybarycuda.core",
     "A tiny CUDA library for fast barycentric operations.", -1,
     barycuda_core_methods};
 

@@ -1,0 +1,5 @@
+include include/bary.cuh
+include include/geometry.cuh
+include include/barylib.h
+include pybarycuda/lib/libbarycuda.so
+include pybarycuda/README.md
