@@ -13,6 +13,27 @@ simplex.
 a 2D/3D simplex, and returns the barycentric coordinates for
 each point.
 
+
+## Usage
+You can use Barycuda directly from C++ (see `src/testBary.cpp` for an example), 
+or if you prefer using Python, Barycuda has a Python wrapper available. 
+You can install it by doing  
+
+`pip install pybarycuda`  
+
+Installation using `pip` will come bundled with a prebuilt
+`libbarycuda.so` for Linux x86-64. The linker paths are correctly set out of
+the box, and you shouldn't have to change your `LD_LIBRARY_PATH` to be able to
+use it.
+
+
+I plan to support other architectures in the future, but if you want to
+do it yourself, you can build the binaries (see below) and add `libbarycuda.so` 
+to `LD_LIBRARY_PATH` to make the Python wrapper work.
+
+
+You will need a CUDA capable system for any of this to work.
+
 ## Build
 ```bash
 # inside the project directory
@@ -21,9 +42,6 @@ cd build
 cmake ../
 make
 ```
-
-## Usage
-Please see `src/testBary.cpp` 
 
 ## Contributing
 Feel free to add more geometric operations related to
